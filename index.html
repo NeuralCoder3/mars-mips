@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>CheerpJ MIPS Mars Transpilation</title>
+  <script src="https://cjrtnc.leaningtech.com/2.3/loader.js"></script>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #cheerpjDisplay {
+      width: 100%;
+      height: 100%;
+    }
+
+  </style>
+</head>
+
+<body>
+</body>
+<script>
+  cheerpjInit({ clipboardMode: "system" });
+  cheerpjCreateDisplay(800, 600);
+  const display = document.getElementById("cheerpjDisplay");
+  display.style.width = "100%";
+  display.style.height = "100%";
+  cheerpjRunJar("/app/Mars.jar");
+
+  function read_file(url, callback, error_callback = () => { }) {
+    const request = new XMLHttpRequest();
+    request.open("GET", url);
+    request.responseType = "text";
+    request.onload = function () {
+      if (request.status === 200) {
+        callback(request.response);
+      } else {
+        error_callback();
+      }
+    };
+    request.send();
+  }
+
+  setTimeout(() => {
+    const list_url = "asm/list.txt";
+
+    read_file("asm/list.txt",
+      (content) => {
+        const files = content.split("\n");
+        files.forEach((file) => {
+          if (file.length > 0) {
+            read_file("asm/" + file,
+              (content) => {
+                console.log("added file", file);
+                cheerpjAddStringFile("/str/" + file, content);
+              },
+              () => {
+                console.log("error loading file", file);
+              }
+            );
+          }
+        });
+      },
+      () => {
+        console.log("error loading list");
+      });
+  }, 1000);
+
+  // general info: https://docs.leaningtech.com/cheerpj/Runtime-API.html
+  // file system: https://docs.leaningtech.com/cheerpj/File-System-support.html
+  // load prepared files from /str/ (or /app/asm/*.asm -- but these files are not shown in the file system)
+  // /files/ is persistent indexedDB storage
+</script>
+
+You can find examples in /str/.
+Save your own files in /files/.
+
+</html>
