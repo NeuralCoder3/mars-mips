@@ -1,0 +1,6 @@
+*.jar
+*.jar.js
+./mars/
+./cheerpj/
+./public/
+./test/
