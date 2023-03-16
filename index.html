@@ -25,12 +25,13 @@
 <body>
 </body>
 <script>
+  const homepage = "mars-mips/";
   cheerpjInit({ clipboardMode: "system" });
   cheerpjCreateDisplay(800, 600);
   const display = document.getElementById("cheerpjDisplay");
   display.style.width = "100%";
   display.style.height = "100%";
-  cheerpjRunJar("/app/Mars.jar");
+  cheerpjRunJar("/app/" + homepage + "Mars.jar");
 
   function read_file(url, callback, error_callback = () => { }) {
     const request = new XMLHttpRequest();
@@ -47,14 +48,12 @@
   }
 
   setTimeout(() => {
-    const list_url = "asm/list.txt";
-
-    read_file("asm/list.txt",
+    read_file("./asm/list.txt",
       (content) => {
         const files = content.split("\n");
         files.forEach((file) => {
           if (file.length > 0) {
-            read_file("asm/" + file,
+            read_file("./asm/" + file,
               (content) => {
                 console.log("added file", file);
                 cheerpjAddStringFile("/str/" + file, content);
@@ -79,5 +78,10 @@
 
 You can find examples in /str/.
 Save your own files in /files/.
+
+<br />
+The first start takes a bit of time to load all resources.
+If after a minute or two nothing happend, try hard refresh (Ctrl+F5 / Ctrl+Shift+R).
+
 
 </html>
