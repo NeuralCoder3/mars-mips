@@ -1,0 +1,535 @@
+   package mars.util;
+   import java.io.File;
+   import java.io.IOException;
+   import java.net.URI;
+   import java.net.URISyntaxException;
+   import java.net.URL;
+   import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+   import java.util.StringTokenizer;
+   import java.util.zip.ZipEntry;
+   import java.util.zip.ZipFile;
+
+   import javax.swing.filechooser.FileFilter;
+	
+	/*
+Copyright (c) 2003-2008,  Pete Sanderson and Kenneth Vollmar
+
+Developed by Pete Sanderson (psanderson@otterbein.edu)
+and Kenneth Vollmar (kenvollmar@missouristate.edu)
+
+Permission is hereby granted, free of charge, to any person obtaining 
+a copy of this software and associated documentation files (the 
+"Software"), to deal in the Software without restriction, including 
+without limitation the rights to use, copy, modify, merge, publish, 
+distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject 
+to the following conditions:
+
+The above copyright notice and this permission notice shall be 
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+(MIT license, http://www.opensource.org/licenses/mit-license.html)
+ */
+	
+/**
+ * Utility class to perform necessary file-related search
+ * operations.  One is to find file names in JAR file,
+ * another is to find names of files in given directory
+ * of normal file system.
+ *
+ * @author Pete Sanderson
+ * @version October 2006
+  */
+    public class FilenameFinder
+   {
+      private static final String JAR_EXTENSION = ".jar";
+      private static final String FILE_URL = "file:";
+      private static final String JAR_URI_PREFIX = "jar:";
+      private static final boolean NO_DIRECTORIES = false;
+      public static String MATCH_ALL_EXTENSIONS = "*"; 
+   /**
+    * Locate files and return list of file names.  Given a known relative directory path,
+    * it will locate it and build list of all names of files in that directory 
+    * having the given file extension. If the "known file path" doesn't work 
+    * because MARS is running from an executable JAR file, it will locate the 
+    * directory in the JAR file and proceed from there.  NOTE: since this uses
+    * the class loader to get the resource, the directory path needs to be 
+    * relative to classpath, not absolute.  To work with an arbitrary file system,
+    * use the other version of this overloaded method.  Will NOT match directories
+    * that happen to have the desired extension.
+    * @param classLoader class loader to use
+    * @param directoryPath Search will be confined to this directory.  Use "/" as 
+    * separator but do NOT include starting or ending "/"  (e.g. mars/tools)
+    * @param fileExtension Only files with this extension will be added 
+    * to the list.  Do NOT include the "." in extension.
+    * @return array list of matching file names as Strings.  If none, list is empty.
+    */
+       public static ArrayList getFilenameList(ClassLoader classLoader,
+                                              String directoryPath, 
+                                              String fileExtension  ) {
+         if(directoryPath.equals("mars/mips/instructions/syscalls") && fileExtension.equals("class")) {
+            String[] res = new String[] {"AbstractSyscall.class", "EndOfTrackListener.class", "RandomStreams.class", "Syscall.class", "SyscallClose.class", "SyscallConfirmDialog.class", "SyscallExit.class", "SyscallExit2.class", "SyscallInputDialogDouble.class", "SyscallInputDialogFloat.class", "SyscallInputDialogInt.class", "SyscallInputDialogString.class", "SyscallMessageDialog.class", "SyscallMessageDialogDouble.class", "SyscallMessageDialogFloat.class", "SyscallMessageDialogInt.class", "SyscallMessageDialogString.class", "SyscallMidiOut.class", "SyscallMidiOutSync.class", "SyscallNumberOverride.class", "SyscallOpen.class", "SyscallPrintChar.class", "SyscallPrintDouble.class", "SyscallPrintFloat.class", "SyscallPrintInt.class", "SyscallPrintIntBinary.class", "SyscallPrintIntHex.class", "SyscallPrintIntUnsigned.class", "SyscallPrintString.class", "SyscallRandDouble.class", "SyscallRandFloat.class", "SyscallRandInt.class", "SyscallRandIntRange.class", "SyscallRandSeed.class", "SyscallRead.class", "SyscallReadChar.class", "SyscallReadDouble.class", "SyscallReadFloat.class", "SyscallReadInt.class", "SyscallReadString.class", "SyscallSbrk.class", "SyscallSleep.class", "SyscallTime.class", "SyscallWrite.class", "Tone.class", "ToneGenerator.class", "AbstractSyscall.class", "EndOfTrackListener.class", "RandomStreams.class", "Syscall.class", "SyscallClose.class", "SyscallConfirmDialog.class", "SyscallExit.class", "SyscallExit2.class", "SyscallInputDialogDouble.class", "SyscallInputDialogFloat.class", "SyscallInputDialogInt.class", "SyscallInputDialogString.class", "SyscallMessageDialog.class", "SyscallMessageDialogDouble.class", "SyscallMessageDialogFloat.class", "SyscallMessageDialogInt.class", "SyscallMessageDialogString.class", "SyscallMidiOut.class", "SyscallMidiOutSync.class", "SyscallNumberOverride.class", "SyscallOpen.class", "SyscallPrintChar.class", "SyscallPrintDouble.class", "SyscallPrintFloat.class", "SyscallPrintInt.class", "SyscallPrintIntBinary.class", "SyscallPrintIntHex.class", "SyscallPrintIntUnsigned.class", "SyscallPrintString.class", "SyscallRandDouble.class", "SyscallRandFloat.class", "SyscallRandInt.class", "SyscallRandIntRange.class", "SyscallRandSeed.class", "SyscallRead.class", "SyscallReadChar.class", "SyscallReadDouble.class", "SyscallReadFloat.class", "SyscallReadInt.class", "SyscallReadString.class", "SyscallSbrk.class", "SyscallSleep.class", "SyscallTime.class", "SyscallWrite.class", "Tone.class", "ToneGenerator.class"};
+            return new ArrayList(Arrays.asList(res));
+         }
+
+         if(directoryPath.equals("mars/mips/dump") && fileExtension.equals("class")) {
+            String[] res = new String[] {"AbstractDumpFormat.class", "AsciiTextDumpFormat.class", "BinaryDumpFormat.class", "BinaryTextDumpFormat.class", "DumpFormat.class", "DumpFormatLoader.class", "HexTextDumpFormat.class", "IntelHexDumpFormat.class", "MIFDumpFormat.class", "SegmentWindowDumpFormat.class", "AbstractDumpFormat.class", "AsciiTextDumpFormat.class", "BinaryDumpFormat.class", "BinaryTextDumpFormat.class", "DumpFormat.class", "DumpFormatLoader.class", "HexTextDumpFormat.class", "IntelHexDumpFormat.class", "MIFDumpFormat.class", "SegmentWindowDumpFormat.class", };
+            return new ArrayList(Arrays.asList(res));
+         }
+
+         if(directoryPath.equals("mars/tools") && fileExtension.equals("class")) {
+            String[] res = new String[] {"AbstractMarsToolAndApplication$1.class", "AbstractMarsToolAndApplication$10.class", "AbstractMarsToolAndApplication$2.class", "AbstractMarsToolAndApplication$3.class", "AbstractMarsToolAndApplication$4.class", "AbstractMarsToolAndApplication$5.class", "AbstractMarsToolAndApplication$6.class", "AbstractMarsToolAndApplication$7.class", "AbstractMarsToolAndApplication$8.class", "AbstractMarsToolAndApplication$9.class", "AbstractMarsToolAndApplication$ConnectButton.class", "AbstractMarsToolAndApplication$CreateAssembleRunMIPSprogram.class", "AbstractMarsToolAndApplication$EnterKeyListener.class", "AbstractMarsToolAndApplication$GUIUpdater.class", "AbstractMarsToolAndApplication$MessageField$MessageWriter.class", "AbstractMarsToolAndApplication$MessageField.class", "AbstractMarsToolAndApplication.class", "BHTableModel.class", "BHTEntry.class", "BHTSimGUI$1.class", "BHTSimGUI.class", "BHTSimulator.class", "BitmapDisplay$1.class", "BitmapDisplay$2.class", "BitmapDisplay$3.class", "BitmapDisplay$4.class", "BitmapDisplay$5.class", "BitmapDisplay$6.class", "BitmapDisplay$GraphicsPanel.class", "BitmapDisplay$Grid.class", "BitmapDisplay.class", "CacheSimulator$1.class", "CacheSimulator$2.class", "CacheSimulator$3.class", "CacheSimulator$4.class", "CacheSimulator$5.class", "CacheSimulator$AbstractCache.class", "CacheSimulator$Animation.class", "CacheSimulator$AnyCache.class", "CacheSimulator$CacheAccessResult.class", "CacheSimulator$CacheBlock.class", "CacheSimulator.class", "CaptureDisplayAlignmentStrategy.class", "CaptureDisplayCentered.class", "CaptureDisplayUpperleft.class", "CaptureMagnifierRectangle.class", "CaptureModel.class", "CaptureRectangleStrategy.class", "CaptureScaledRectangle.class", "DigitalLabSim$1.class", "DigitalLabSim$HexaKeyboard$EcouteurClick.class", "DigitalLabSim$HexaKeyboard.class", "DigitalLabSim$OneSecondCounter.class", "DigitalLabSim$SevenSegmentDisplay.class", "DigitalLabSim$SevenSegmentPanel.class", "DigitalLabSim.class", "FloatRepresentation$1.class", "FloatRepresentation$BinaryDisplayKeystrokeListener.class", "FloatRepresentation$BinaryFractionDisplayTextField.class", "FloatRepresentation$BinaryToDecimalFormulaGraphic.class", "FloatRepresentation$DecimalDisplayKeystokeListenter.class", "FloatRepresentation$FlavorsOfFloat.class", "FloatRepresentation$HexDisplayKeystrokeListener.class", "FloatRepresentation$HexToBinaryGraphicPanel.class", "FloatRepresentation$InstructionsPane.class", "FloatRepresentation.class", "FunctionUnitVisualization.class", "InstructionCounter.class", "InstructionStatistics.class", "IntroToTools.class", "KeyboardAndDisplaySimulator$1$1.class", "KeyboardAndDisplaySimulator$1.class", "KeyboardAndDisplaySimulator$2.class", "KeyboardAndDisplaySimulator$3.class", "KeyboardAndDisplaySimulator$4.class", "KeyboardAndDisplaySimulator$DelayLengthPanel$DelayLengthListener.class", "KeyboardAndDisplaySimulator$DelayLengthPanel.class", "KeyboardAndDisplaySimulator$DisplayResizeAdapter.class", "KeyboardAndDisplaySimulator$FixedLengthDelay.class", "KeyboardAndDisplaySimulator$FontChanger.class", "KeyboardAndDisplaySimulator$FontSettingDialog$1.class", "KeyboardAndDisplaySimulator$FontSettingDialog$2.class", "KeyboardAndDisplaySimulator$FontSettingDialog$3.class", "KeyboardAndDisplaySimulator$FontSettingDialog.class", "KeyboardAndDisplaySimulator$KeyboardKeyListener.class", "KeyboardAndDisplaySimulator$NormallyDistributedDelay.class", "KeyboardAndDisplaySimulator$TransmitterDelayTechnique.class", "KeyboardAndDisplaySimulator$UniformlyDistributedDelay.class", "KeyboardAndDisplaySimulator.class", "Magnifier$1.class", "Magnifier$2.class", "Magnifier$3.class", "Magnifier$4.class", "Magnifier$5.class", "Magnifier.class", "MagnifierImage$1.class", "MagnifierImage$2.class", "MagnifierImage$Scribbler.class", "MagnifierImage.class", "MarsBot$BotRunnable$1.class", "MarsBot$BotRunnable$2.class", "MarsBot$BotRunnable.class", "MarsBot$MarsBotDisplay.class", "MarsBot.class", "MarsTool.class", "MemoryReferenceVisualization$1.class", "MemoryReferenceVisualization$2.class", "MemoryReferenceVisualization$3.class", "MemoryReferenceVisualization$4.class", "MemoryReferenceVisualization$5.class", "MemoryReferenceVisualization$6.class", "MemoryReferenceVisualization$7.class", "MemoryReferenceVisualization$8.class", "MemoryReferenceVisualization$ColorChooserControls$1.class", "MemoryReferenceVisualization$ColorChooserControls$ColorChooserListener.class", "MemoryReferenceVisualization$ColorChooserControls.class", "MemoryReferenceVisualization$CounterColor.class", "MemoryReferenceVisualization$CounterColorScale.class", "MemoryReferenceVisualization$GraphicsPanel.class", "MemoryReferenceVisualization$Grid.class", "MemoryReferenceVisualization.class", "MipsXray$1.class", "MipsXray$DatapathAnimation.class", "MipsXray$Vertex.class", "MipsXray.class", "ScavengerHunt$1.class", "ScavengerHunt$Location.class", "ScavengerHunt$PlayerData.class", "ScavengerHunt$ScavengerHuntDisplay.class", "ScavengerHunt$ScavengerHuntRunnable$1.class", "ScavengerHunt$ScavengerHuntRunnable$2.class", "ScavengerHunt$ScavengerHuntRunnable.class", "ScavengerHunt.class", "ScreenMagnifier$1.class", "ScreenMagnifier.class", "ScribblerSettings.class", "SettingsDialog$1.class", "SettingsDialog$2.class", "SettingsDialog$3.class", "SettingsDialog.class", "UnitAnimation$Vertex.class", "UnitAnimation.class", "AbstractMarsToolAndApplication$1.class", "AbstractMarsToolAndApplication$10.class", "AbstractMarsToolAndApplication$2.class", "AbstractMarsToolAndApplication$3.class", "AbstractMarsToolAndApplication$4.class", "AbstractMarsToolAndApplication$5.class", "AbstractMarsToolAndApplication$6.class", "AbstractMarsToolAndApplication$7.class", "AbstractMarsToolAndApplication$8.class", "AbstractMarsToolAndApplication$9.class", "AbstractMarsToolAndApplication$ConnectButton.class", "AbstractMarsToolAndApplication$CreateAssembleRunMIPSprogram.class", "AbstractMarsToolAndApplication$EnterKeyListener.class", "AbstractMarsToolAndApplication$GUIUpdater.class", "AbstractMarsToolAndApplication$MessageField$MessageWriter.class", "AbstractMarsToolAndApplication$MessageField.class", "AbstractMarsToolAndApplication.class", "BHTableModel.class", "BHTEntry.class", "BHTSimGUI$1.class", "BHTSimGUI.class", "BHTSimulator.class", "BitmapDisplay$1.class", "BitmapDisplay$2.class", "BitmapDisplay$3.class", "BitmapDisplay$4.class", "BitmapDisplay$5.class", "BitmapDisplay$6.class", "BitmapDisplay$GraphicsPanel.class", "BitmapDisplay$Grid.class", "BitmapDisplay.class", "CacheSimulator$1.class", "CacheSimulator$2.class", "CacheSimulator$3.class", "CacheSimulator$4.class", "CacheSimulator$5.class", "CacheSimulator$AbstractCache.class", "CacheSimulator$Animation.class", "CacheSimulator$AnyCache.class", "CacheSimulator$CacheAccessResult.class", "CacheSimulator$CacheBlock.class", "CacheSimulator.class", "CaptureDisplayAlignmentStrategy.class", "CaptureDisplayCentered.class", "CaptureDisplayUpperleft.class", "CaptureMagnifierRectangle.class", "CaptureModel.class", "CaptureRectangleStrategy.class", "CaptureScaledRectangle.class", "DigitalLabSim$1.class", "DigitalLabSim$HexaKeyboard$EcouteurClick.class", "DigitalLabSim$HexaKeyboard.class", "DigitalLabSim$OneSecondCounter.class", "DigitalLabSim$SevenSegmentDisplay.class", "DigitalLabSim$SevenSegmentPanel.class", "DigitalLabSim.class", "FloatRepresentation$1.class", "FloatRepresentation$BinaryDisplayKeystrokeListener.class", "FloatRepresentation$BinaryFractionDisplayTextField.class", "FloatRepresentation$BinaryToDecimalFormulaGraphic.class", "FloatRepresentation$DecimalDisplayKeystokeListenter.class", "FloatRepresentation$FlavorsOfFloat.class", "FloatRepresentation$HexDisplayKeystrokeListener.class", "FloatRepresentation$HexToBinaryGraphicPanel.class", "FloatRepresentation$InstructionsPane.class", "FloatRepresentation.class", "FunctionUnitVisualization.class", "InstructionCounter.class", "InstructionStatistics.class", "IntroToTools.class", "KeyboardAndDisplaySimulator$1$1.class", "KeyboardAndDisplaySimulator$1.class", "KeyboardAndDisplaySimulator$2.class", "KeyboardAndDisplaySimulator$3.class", "KeyboardAndDisplaySimulator$4.class", "KeyboardAndDisplaySimulator$DelayLengthPanel$DelayLengthListener.class", "KeyboardAndDisplaySimulator$DelayLengthPanel.class", "KeyboardAndDisplaySimulator$DisplayResizeAdapter.class", "KeyboardAndDisplaySimulator$FixedLengthDelay.class", "KeyboardAndDisplaySimulator$FontChanger.class", "KeyboardAndDisplaySimulator$FontSettingDialog$1.class", "KeyboardAndDisplaySimulator$FontSettingDialog$2.class", "KeyboardAndDisplaySimulator$FontSettingDialog$3.class", "KeyboardAndDisplaySimulator$FontSettingDialog.class", "KeyboardAndDisplaySimulator$KeyboardKeyListener.class", "KeyboardAndDisplaySimulator$NormallyDistributedDelay.class", "KeyboardAndDisplaySimulator$TransmitterDelayTechnique.class", "KeyboardAndDisplaySimulator$UniformlyDistributedDelay.class", "KeyboardAndDisplaySimulator.class", "Magnifier$1.class", "Magnifier$2.class", "Magnifier$3.class", "Magnifier$4.class", "Magnifier$5.class", "Magnifier.class", "MagnifierImage$1.class", "MagnifierImage$2.class", "MagnifierImage$Scribbler.class", "MagnifierImage.class", "MarsBot$BotRunnable$1.class", "MarsBot$BotRunnable$2.class", "MarsBot$BotRunnable.class", "MarsBot$MarsBotDisplay.class", "MarsBot.class", "MarsTool.class", "MemoryReferenceVisualization$1.class", "MemoryReferenceVisualization$2.class", "MemoryReferenceVisualization$3.class", "MemoryReferenceVisualization$4.class", "MemoryReferenceVisualization$5.class", "MemoryReferenceVisualization$6.class", "MemoryReferenceVisualization$7.class", "MemoryReferenceVisualization$8.class", "MemoryReferenceVisualization$ColorChooserControls$1.class", "MemoryReferenceVisualization$ColorChooserControls$ColorChooserListener.class", "MemoryReferenceVisualization$ColorChooserControls.class", "MemoryReferenceVisualization$CounterColor.class", "MemoryReferenceVisualization$CounterColorScale.class", "MemoryReferenceVisualization$GraphicsPanel.class", "MemoryReferenceVisualization$Grid.class", "MemoryReferenceVisualization.class", "MipsXray$1.class", "MipsXray$DatapathAnimation.class", "MipsXray$Vertex.class", "MipsXray.class", "ScavengerHunt$1.class", "ScavengerHunt$Location.class", "ScavengerHunt$PlayerData.class", "ScavengerHunt$ScavengerHuntDisplay.class", "ScavengerHunt$ScavengerHuntRunnable$1.class", "ScavengerHunt$ScavengerHuntRunnable$2.class", "ScavengerHunt$ScavengerHuntRunnable.class", "ScavengerHunt.class", "ScreenMagnifier$1.class", "ScreenMagnifier.class", "ScribblerSettings.class", "SettingsDialog$1.class", "SettingsDialog$2.class", "SettingsDialog$3.class", "SettingsDialog.class", "UnitAnimation$Vertex.class", "UnitAnimation.class", };
+            return new ArrayList(Arrays.asList(res));
+         }
+
+         // if(directoryPath.equals("") && fileExtension.equals("class")) {
+         //    String[] res = ;
+         //    return new ArrayList(Arrays.asList(res));
+         // }
+
+         fileExtension = checkFileExtension(fileExtension);
+         ArrayList filenameList = new ArrayList();
+      	// Modified by DPS 10-July-2008 to better handle path containing space
+      	// character (%20) and to hopefully handle path containing non-ASCII
+      	// characters.  The "toURI()" approach was suggested by MARS user
+      	// Felipe Lessa and worked for him when running 'java Mars' but it did
+      	// not work when executing from a jar file 'java -jar Mars.jar'.  I
+      	// took it from there and discovered that in the latter situation,
+      	// "toURI()" created a URI prefixed with "jar:" and the "getPath()" in 
+      	// that case returns null! If you strip the "jar:" prefix and create a 
+      	// new URI from the resulting string, it works!  Thanks Felipe!
+      	//
+      	// NOTE 5-Sep-2008: "toURI()" was introduced in Java 1.5.  To maintain
+      	// 1.4 compatibility, I need to change it to call URI constructor with
+      	// string argument, as documented in Sun API.
+         // 
+         // Modified by Ingo Kofler 24-Sept-2009 to handle multiple JAR files.
+      	// This requires use of ClassLoader getResources() instead of 
+      	// getResource().  The former will look in all JAR files listed in
+      	// in the java command.
+      	//
+         URI uri;
+         try {
+            Enumeration urls = classLoader.getResources(directoryPath);
+          
+            while (urls.hasMoreElements()) {
+               uri = new URI(urls.nextElement().toString());
+               if (uri.toString().indexOf(JAR_URI_PREFIX)==0) {
+                  uri = new URI(uri.toString().substring(JAR_URI_PREFIX.length()));
+               }
+             
+               File f = new File(uri.getPath());
+               File[] files = f.listFiles();
+               if (files == null) {         
+                  if (f.toString().toLowerCase().indexOf(JAR_EXTENSION)>0) {
+                       // Must be running from a JAR file. Use ZipFile to find files and create list.
+							  // Modified 12/28/09 by DPS to add results to existing filenameList instead of overwriting it.         
+                     filenameList.addAll(getListFromJar(extractJarFilename(f.toString()), directoryPath, fileExtension));
+                  } 
+               }
+               else {  // have array of File objects; convert to names and add to list
+                  FileFilter filter = getFileFilter(fileExtension, "", NO_DIRECTORIES);
+                  for (int i=0; i<files.length; i++) {
+                     if (filter.accept(files[i])) { 
+                        filenameList.add(files[i].getName());
+                     }
+                  }
+               }                   		
+            }
+
+            System.out.println("Call to getFilenameList() with directoryPath="+directoryPath+" and fileExtension="+fileExtension);
+            // print as copyable string list
+            System.out.println("List of files found:");
+            System.out.print("new String[] {");
+            for (int i=0; i<filenameList.size(); i++) {
+               System.out.print("\""+filenameList.get(i)+"\", ");
+            }
+            System.out.println("};\n");
+            return filenameList;      
+          
+         }
+             catch (URISyntaxException e) {
+               e.printStackTrace();
+               return filenameList;
+            } 
+             catch (IOException e) {
+               e.printStackTrace();
+               return filenameList;
+            }
+         
+         /* Original implementation
+      URI uri;
+         try {
+            uri = new URI(classLoader.getResource(directoryPath).toString());
+            if (uri.toString().indexOf(JAR_URI_PREFIX)==0) {
+               uri = new URI(uri.toString().substring(JAR_URI_PREFIX.length()));
+            }
+         }
+             catch (URISyntaxException e) {
+               e.printStackTrace();
+               return filenameList;
+            }
+         File f = new File(uri.getPath());
+         File[] files = f.listFiles();
+         if (files == null) {         
+            if (f.toString().toLowerCase().indexOf(JAR_EXTENSION)>0) {
+               // Must be running from a JAR file. Use ZipFile to find files and create list.         
+               filenameList = getListFromJar(extractJarFilename(f.toString()), directoryPath, fileExtension);
+            } 
+         }
+         else {  // have array of File objects; convert to names and add to list
+            FileFilter filter = getFileFilter(fileExtension, "", NO_DIRECTORIES);
+            for (int i=0; i<files.length; i++) {
+               if (filter.accept(files[i])) { 
+                  filenameList.add(files[i].getName());
+               }
+            }
+         }
+         return filenameList; */
+      }
+   
+   
+   /**
+    * Locate files and return list of file names.  Given a known relative directory path,
+    * it will locate it and build list of all names of files in that directory 
+    * having the given file extension. If the "known file path" doesn't work 
+    * because MARS is running from an executable JAR file, it will locate the 
+    * directory in the JAR file and proceed from there.  NOTE: since this uses
+    * the class loader to get the resource, the directory path needs to be 
+    * relative to classpath, not absolute.  To work with an arbitrary file system,
+    * use the other version of this overloaded method.
+    * @param classLoader class loader to use
+    * @param directoryPath Search will be confined to this directory.  Use "/" as 
+    * separator but do NOT include starting or ending "/"  (e.g. mars/tools)
+    * @param fileExtensions ArrayList of Strings containing file extensions.
+    * Only files with an extension in this list will be added to the list.
+    * Do NOT include the ".", eg "class" not ".class".  If Arraylist or 
+    * extension null or empty, all files are added.
+    * @return array list of matching file names as Strings.  If none, list is empty.
+    */
+       public static ArrayList getFilenameList(ClassLoader classLoader,
+                                              String directoryPath, 
+       													 ArrayList fileExtensions  ) {
+         ArrayList filenameList = new ArrayList();
+         String fileExtension;
+         if (fileExtensions==null || fileExtensions.size()==0) {
+            filenameList = getFilenameList(classLoader,directoryPath,"");
+         } 
+         else {
+            for (int i=0; i<fileExtensions.size(); i++) {
+               fileExtension = checkFileExtension((String)fileExtensions.get(i));
+               filenameList.addAll(getFilenameList(classLoader,directoryPath, fileExtension));
+            }
+         }
+         return filenameList;
+      }
+   
+   
+   /**
+    * Locate files and return list of file names.  Given a known directory path,
+    * it will locate it and build list of all names of files in that directory 
+    * having the given file extension.  If file extenion is null or empty, all
+    * filenames are returned. Returned list contains absolute filename paths.
+    * @param directoryPath Search will be confined to this directory.  
+    * @param fileExtension Only files with this extension will be added to the list.
+    * Do NOT include "." in extension.
+    * If null or empty string, all files are added.
+    * @return array list of matching file names (absolute path).  If none, list is empty. 
+    */
+       public static ArrayList getFilenameList(String directoryPath, String fileExtension) {
+         fileExtension = checkFileExtension(fileExtension);
+         ArrayList filenameList = new ArrayList();
+         File directory = new File(directoryPath);
+         if (directory.isDirectory()) {
+            File[] allFiles = directory.listFiles();
+            FileFilter filter = getFileFilter(fileExtension, "", NO_DIRECTORIES);
+            for (int i=0; i<allFiles.length; i++) {
+               if (filter.accept(allFiles[i])) {
+                  filenameList.add(allFiles[i].getAbsolutePath());
+               }
+            }
+         }
+         return filenameList;
+      }
+   
+   
+   /**
+    * Locate files and return list of file names.  Given a known directory path,
+    * it will locate it and build list of all names of files in that directory 
+    * having the given file extension.  If file extenion is null or empty, all
+    * filenames are returned. Returned list contains absolute filename paths.
+    * @param directoryPath Search will be confined to this directory.  
+    * @param fileExtensions ArrayList of Strings containing file extensions.
+    * Only files with an extension in this list will be added 
+    * to the list.  Do NOT include the "." in extensions.  If Arraylist or 
+    * extension null or empty, all files are added.
+    * @return array list of matching file names (absolute path).  If none, list is empty. 
+    */
+       public static ArrayList getFilenameList(String directoryPath, ArrayList fileExtensions) {
+         ArrayList filenameList = new ArrayList();
+         String fileExtension;
+         if (fileExtensions==null || fileExtensions.size()==0) {
+            filenameList = getFilenameList(directoryPath,"");
+         } 
+         else {
+            for (int i=0; i<fileExtensions.size(); i++) {
+               fileExtension = checkFileExtension((String)fileExtensions.get(i));
+               filenameList.addAll(getFilenameList(directoryPath, fileExtension));
+            }
+         }
+         return filenameList;
+      }
+   
+   
+   	
+   /**
+    * Return list of file names.  Given a list of file names, it will return the list 
+    * of all having the given file extension.  If file extenion is null or empty, all
+    * filenames are returned.  Returned list contains absolute filename paths.
+    * @param nameList ArrayList of String containing file names.  
+    * @param fileExtension Only files with this extension will be added to the list.
+    * If null or empty string, all files are added.  Do NOT include "." in extension.
+    * @return array list of matching file names (absolute path).  If none, list is empty. 
+    */
+       public static ArrayList getFilenameList(ArrayList nameList, String fileExtension) {
+         fileExtension = checkFileExtension(fileExtension);
+         ArrayList filenameList = new ArrayList();
+         FileFilter filter = getFileFilter(fileExtension, "", NO_DIRECTORIES);
+         for (int i=0; i<nameList.size(); i++) {
+            File file = new File((String)nameList.get(i));
+            if (filter.accept(file)) {
+               filenameList.add(file.getAbsolutePath());
+            }				
+         }
+         return filenameList;
+      }
+   
+   
+   /**
+    * Return list of file names.  Given a list of file names, it will return the list 
+    * of all having the given file extension.  If file extenion is null or empty, all
+    * filenames are returned.  Returned list contains absolute filename paths.
+    * @param nameList ArrayList of String containing file names.  
+    * @param fileExtensions ArrayList of Strings containing file extensions.
+    * Only files with an extension in this list will be added 
+    * to the list.  Do NOT include the "." in extensions.  If Arraylist or 
+    * extension null or empty, all files are added.
+    * @return array list of matching file names (absolute path).  If none, list is empty. 
+    */
+       public static ArrayList getFilenameList(ArrayList nameList, ArrayList fileExtensions) {
+         ArrayList filenameList = new ArrayList();
+         String fileExtension;
+         if (fileExtensions==null || fileExtensions.size()==0) {
+            filenameList = getFilenameList(nameList,"");
+         } 
+         else {
+            for (int i=0; i<fileExtensions.size(); i++) {
+               fileExtension = checkFileExtension((String)fileExtensions.get(i));
+               filenameList.addAll(getFilenameList(nameList, fileExtension));
+            }
+         }
+         return filenameList;
+      }
+   
+   	/**
+   	 *  Get the filename extension of the specified File.
+   	 *  @param file the File object representing the file of interest
+   	 *  @return The filename extension (everything that follows 
+   	 *  last '.' in filename) or null if none.
+   	 */
+   	 // Source code from Sun Microsystems "The Java Tutorials : How To Use File Choosers"
+       public static String getExtension(File file) {
+         String ext = null; 
+         String s = file.getName(); 
+         int i = s.lastIndexOf('.'); 
+         if (i > 0 && i < s.length() - 1) { 
+            ext = s.substring(i+1).toLowerCase(); 
+         } 
+         return ext; 
+      }
+   	
+   	/**
+   	 *  Get a FileFilter that will filter files based on the given list of filename extensions.
+   	 *  @param extensions ArrayList of Strings, each string is acceptable filename extension.
+   	 *  @param description String containing description to be added in parentheses after list of extensions.
+   	 *  @param acceptDirectories boolean value true if directories are accepted by the filter, false otherwise.
+   	 *  @return a FileFilter object that accepts files with given extensions, and directories if so indicated.
+   	 */
+   	 
+       public static FileFilter getFileFilter(ArrayList extensions, String description, boolean acceptDirectories) {
+         return new MarsFileFilter(extensions, description, acceptDirectories);
+      }
+   	 
+   	/**
+   	 *  Get a FileFilter that will filter files based on the given list of filename extensions.
+   	 *  All directories are accepted by the filter.
+   	 *  @param extensions ArrayList of Strings, each string is acceptable filename extension
+   	 *  @param description String containing description to be added in parentheses after list of extensions.
+   	 *  @return a FileFilter object that accepts files with given extensions, and directories if so indicated.
+   	 */		 
+   	 
+       public static FileFilter getFileFilter(ArrayList extensions, String description) {
+         return getFileFilter(extensions, description, true);
+      }
+   	 
+   	/**
+   	 *  Get a FileFilter that will filter files based on the given filename extension.
+   	 *  @param extension String containing acceptable filename extension.
+   	 *  @param description String containing description to be added in parentheses after list of extensions.
+   	 *  @param acceptDirectories boolean value true if directories are accepted by the filter, false otherwise.
+   	 *  @return a FileFilter object that accepts files with given extensions, and directories if so indicated.
+   	 */
+   	 
+       public static FileFilter getFileFilter(String extension, String description, boolean acceptDirectories) {
+         ArrayList extensions = new ArrayList();
+         extensions.add(extension);
+         return new MarsFileFilter(extensions, description, acceptDirectories);
+      }
+   	 
+   	/**
+   	 *  Get a FileFilter that will filter files based on the given filename extension.
+   	 *  All directories are accepted by the filter.
+   	 *  @param extension String containing acceptable filename extension
+   	 *  @param description String containing description to be added in parentheses after list of extensions.
+   	 *  @return a FileFilter object that accepts files with given extensions, and directories if so indicated.
+   	 */		 
+   	 
+       public static FileFilter getFileFilter(String extension, String description) {
+         ArrayList extensions = new ArrayList();
+         extensions.add(extension);
+         return getFileFilter(extensions, description, true);
+      }
+   	 
+   	/**
+   	 *  Determine if given filename ends with given extension.
+   	 *  @param name A String containing the file name
+   	 *  @param extension A String containing the file extension.  Leading period is optional.
+   	 *  @return Returns true if filename ends with given extension, false otherwise.
+   	 */
+   	 // For assured results, make sure extension starts with "."	(will add it if not there) 
+       public static boolean fileExtensionMatch(String name, String extension) {
+         return (extension==null || extension.length()==0 || name.endsWith(((extension.startsWith("."))? "" : ".")+extension));
+      }    
+   	 
+   	 // return list of file names in specified folder inside JAR
+       private static ArrayList getListFromJar(String jarName, String directoryPath, String fileExtension) {
+         fileExtension = checkFileExtension(fileExtension);
+         ArrayList nameList = new ArrayList();
+         if (jarName==null) {
+            return nameList;
+         }
+         try {
+            ZipFile zf = new ZipFile(new File(jarName));
+            Enumeration list = zf.entries();
+            while (list.hasMoreElements()) {
+               ZipEntry ze = (ZipEntry) list.nextElement();
+               if (ze.getName().startsWith(directoryPath+"/") && 
+                   fileExtensionMatch(ze.getName(),fileExtension)) {
+                  nameList.add(ze.getName().substring(ze.getName().lastIndexOf('/')+1));
+               }
+            }
+         } 
+             catch (Exception e) {
+               System.out.println("Exception occurred reading MarsTool list from JAR: "+e);
+            }
+         return nameList;
+      }
+   	
+   	 // Given pathname, extract and return JAR file name (must be only element containing ".jar")
+   	 // 5 Dec 2007 DPS: Modified to return file path of JAR file, not just its name.  This was
+   	 //                 by request of Zachary Kurmas of Grant Valley State, who got errors trying
+   	 //                 to run the Mars.jar file from a different working directory.  He helpfully
+   	 //                 pointed out what the error is and where it occurs.  Originally, it would
+   	 //                 work only if the JAR file was in the current working directory (as would
+   	 //                 be the case if executed from a GUI by double-clicking the jar icon).
+       private static String extractJarFilename(String path) {
+         StringTokenizer findTheJar = new StringTokenizer(path,"\\/");
+         if (path.toLowerCase().startsWith(FILE_URL)) {
+            path = path.substring(FILE_URL.length());
+         }
+         int jarPosition = path.toLowerCase().indexOf(JAR_EXTENSION);
+         return (jarPosition >= 0) ? path.substring(0,jarPosition+JAR_EXTENSION.length()) : path;
+      }
+   	
+   	// make sure file extension, if it is real, does not start with '.' -- remove it.
+       private static String checkFileExtension(String fileExtension) {
+         return (fileExtension==null || fileExtension.length()==0 || !fileExtension.startsWith("."))
+                ? fileExtension
+            	 : fileExtension.substring(1);
+      }
+   	
+   	
+   	///////////////////////////////////////////////////////////////////////////
+   	//  FileFilter subclass to be instantiated by the getFileFilter method above.
+   	//  This extends javax.swing.filechooser.FileFilter
+   	
+       private static class MarsFileFilter extends FileFilter {
+      
+         private ArrayList extensions;
+         private String fullDescription;
+         private boolean acceptDirectories;
+        
+          private MarsFileFilter(ArrayList extensions, String description, boolean acceptDirectories) {
+            this.extensions = extensions;
+            this.fullDescription = buildFullDescription(description, extensions);
+            this.acceptDirectories = acceptDirectories;
+         }
+      	
+      	// User provides descriptive phrase to be parenthesized.
+      	// We will attach it to description of the extensions.  For example, if the extensions
+      	// given are s and asm and the description is "Assembler Programs" the full description
+      	// generated here will be "Assembler Programs (*.s; *.asm)"
+          private String buildFullDescription(String description, ArrayList extensions) {
+            String result = (description == null) ? "" : description;
+            if (extensions.size() > 0) {
+               result += "  (";
+            }
+            for (int i=0; i<extensions.size(); i++) {
+               String extension = (String) extensions.get(i);
+               if (extension != null && extension.length() > 0) {
+                  result += ((i==0)?"":"; ")+"*"+((extension.charAt(0)=='.')? "" : ".")+extension;
+               }
+            }
+            if (extensions.size() > 0) {
+               result += ")";
+            }
+            return result;
+         }
+      	
+      	// required by the abstract superclass
+          public String getDescription() {
+            return this.fullDescription;
+         }
+      	
+      	// required by the abstract superclass.
+          public boolean accept(File file) {
+            if (file.isDirectory()) { 
+               return acceptDirectories; 
+            } 
+            String fileExtension = getExtension(file); 
+            if (fileExtension != null) { 
+               for (int i=0; i<extensions.size(); i++) {
+                  String extension = checkFileExtension((String)extensions.get(i));
+                  if (extension.equals(MATCH_ALL_EXTENSIONS) || 
+                      fileExtension.equals(extension)) {
+                     return true;
+                  }	
+               }
+            }
+            return false;
+         }
+      	
+      } // MarsFileFilter class
+   		
+   } // FilenameFinder class
+
