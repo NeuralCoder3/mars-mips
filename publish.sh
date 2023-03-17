@@ -1,8 +1,9 @@
 # publish to github page
 
-if [ ! -d "public" ]; then
-  git worktree add -B gh-pages public origin/gh-pages
+if [ -d "public" ]; then
+  git worktree remove public
 fi
+git worktree add -B gh-pages public origin/gh-pages
 
 rm -rf ./public/*
 cp -r ./asm ./public/asm
@@ -17,3 +18,6 @@ fi
 
 git add . && git commit -m "Publishing to gh-pages (publish.sh)"
 git push origin gh-pages
+
+cd ..
+git worktree remove public
