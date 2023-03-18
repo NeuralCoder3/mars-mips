@@ -25,13 +25,28 @@
 <body>
 </body>
 <script>
-  const homepage = "mars-mips/";
+  let homepage = "mars-mips/";
+  // compute homepage from url
+  let url = window.location.href;
+  let index = url.lastIndexOf("/");
+  if (index > 0) {
+    homepage = url.substring(index + 1);
+    if (homepage.length > 0 && homepage[homepage.length - 1] != "/") {
+      homepage += "/";
+    }
+  }
+
   cheerpjInit({ clipboardMode: "system" });
   cheerpjCreateDisplay(800, 600);
   const display = document.getElementById("cheerpjDisplay");
   display.style.width = "100%";
   display.style.height = "100%";
   cheerpjRunJar("/app/" + homepage + "Mars.jar");
+
+  cheerpjRunMain("util.Util", "/app/" + homepage + "Util.jar");
+
+  // we can use a /index.list file to expose files to /app/
+  // but this does not work with folders
 
   function read_file(url, callback, error_callback = () => { }) {
     const request = new XMLHttpRequest();
@@ -47,22 +62,43 @@
     request.send();
   }
 
+  function createDirectory(path) {
+    console.log("createDirectory", path)
+    file = cjNew("java.io.File", "/files/" + path);
+    cjCall(file, "mkdirs");
+  }
+
+  function copyFile(src, dst) {
+    src_str = "/app/" + src;
+    dst_str = "/files/" + dst;
+    cjCall("util.Util", "copyFile", src_str, dst_str, true);
+  }
+
+  function processFileOperation(s) {
+    console.log("processFileOperation", s)
+    const parts = s.split(" ");
+    switch (parts[0]) {
+      case "mkdir":
+        createDirectory(parts[1]);
+        break;
+      case "copy":
+        copyFile(parts[1], parts[2]);
+        break;
+      case "create":
+        copyFile(parts[1], parts[1]);
+        break;
+    }
+  }
+
   setTimeout(() => {
-    read_file("./asm/list.txt",
+    read_file("files.list",
       (content) => {
         const files = content.split("\n");
         files.forEach((file) => {
-          if (file.length > 0) {
-            read_file("./asm/" + file,
-              (content) => {
-                console.log("added file", file);
-                cheerpjAddStringFile("/str/" + file, content);
-              },
-              () => {
-                console.log("error loading file", file);
-              }
-            );
+          if (file.length == 0) {
+            return;
           }
+          processFileOperation(file);
         });
       },
       () => {
@@ -72,12 +108,11 @@
 
   // general info: https://docs.leaningtech.com/cheerpj/Runtime-API.html
   // file system: https://docs.leaningtech.com/cheerpj/File-System-support.html
-  // load prepared files from /str/ (or /app/asm/*.asm -- but these files are not shown in the file system)
+  // load prepared files /app/asm/*.asm -- but these files are not shown in the file system
   // /files/ is persistent indexedDB storage
 </script>
 
-You can find examples in /str/.
-Save your own files in /files/.
+Save your own files in /files/. You can also find examples there.
 
 <br />
 The first start takes a bit of time to load all resources.
