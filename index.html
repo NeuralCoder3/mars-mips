@@ -44,8 +44,6 @@
   cheerpjRunJar("/app/" + homepage + "Mars.jar");
 
   cheerpjRunMain("util.Util", "/app/" + homepage + "Util.jar");
-  // cjCall("util.Util","hello");
-  // cjCall("util.Util","copyFile","/app/asm/hello.asm","/files/hello2.asm");
 
   // we can use a /index.list file to expose files to /app/
   // but this does not work with folders
@@ -70,44 +68,13 @@
     cjCall(file, "mkdirs");
   }
 
-  function writeFile(dst, content) {
-    dst_str = "/files/" + dst;
-    file_writer = cjNew("java.io.FileWriter", dst_str);
-    buffered_writer = cjNew("java.io.BufferedWriter", file_writer);
-    cjCall(buffered_writer, "write", content);
-    cjCall(buffered_writer, "close");
-  }
-
-  // does not work
   function copyFile(src, dst) {
-    // src_file = cjNew("java.io.File", "/app/" + src);
-    // dst_file = cjNew("java.io.File", "/files/" + dst);
-    // src_str = cjStringJsToJava("/app/" + src);
-    // dst_str = cjStringJsToJava("/files/" + dst);
     src_str = "/app/" + src;
     dst_str = "/files/" + dst;
     cjCall("util.Util", "copyFile", src_str, dst_str, true);
-    // src_file = cjNew("java.io.File", src_str);
-    // dst_file = cjNew("java.io.File", dst_str);
-    // // using apache commons
-    // //cjCall("org.apache.commons.io.FileUtils", "copyFile", src_file, dst_file);
-    // // using java.nio
-    // // src_path = cjCall(src_file, "toPath");
-    // // dst_path = cjCall(dst_file, "toPath");
-    // // cjCall("java.nio.file.Files", "copy", src_path, dst_path);
-    // // using steams
-    // input_stream = cjNew("java.io.FileInputStream", src_file);
-    // output_stream = cjNew("java.io.FileOutputStream", dst_file);
-    // input_channel = cjCall(input_stream, "getChannel");
-    // output_channel = cjCall(output_stream, "getChannel");
-    // size = cjCall(input_channel, "size");
-    // cjCall(output_channel, "transferFrom", input_channel, 0, size);
   }
 
   function processFileOperation(s) {
-    // mkdir FILE 
-    // copy FILE1 FILE2
-    // create FILE = copy FILE FILE
     console.log("processFileOperation", s)
     const parts = s.split(" ");
     switch (parts[0]) {
@@ -121,17 +88,6 @@
         copyFile(parts[1], parts[1]);
         break;
     }
-
-    // read_file(file,
-    //   (content) => {
-    //     console.log("added file", file);
-    //     let file_path = file.replace("./", "");
-    //     cheerpjAddStringFile("/str/" + file_path, content);
-    //   },
-    //   () => {
-    //     console.log("error loading file", file);
-    //   }
-    // );
   }
 
   setTimeout(() => {
@@ -149,11 +105,10 @@
         console.log("error loading list");
       });
   }, 1000);
-  // */
 
   // general info: https://docs.leaningtech.com/cheerpj/Runtime-API.html
   // file system: https://docs.leaningtech.com/cheerpj/File-System-support.html
-  // load prepared files from /str/ (or /app/asm/*.asm -- but these files are not shown in the file system)
+  // load prepared files /app/asm/*.asm -- but these files are not shown in the file system
   // /files/ is persistent indexedDB storage
 </script>
 
