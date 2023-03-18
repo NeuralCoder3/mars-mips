@@ -7,7 +7,7 @@ git worktree add -B gh-pages public origin/gh-pages
 
 rm -rf ./public/*
 cp -r ./asm ./public/asm
-cp Mars.jar Mars.jar.js index.html ./public/
+cp Mars.jar Mars.jar.js index.html index.list ./public/
 
 cd public
 current_branch=$(git symbolic-ref --short -q HEAD)

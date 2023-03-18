@@ -1,0 +1,5 @@
+mkdir project1
+mkdir examples
+copy asm/Fibonacci.asm examples/Fibonacci.asm
+copy asm/hello.asm examples/hello.asm
+copy asm/hello.asm hello.asm

@@ -1,6 +1,8 @@
 *.jar
 *.jar.js
-./mars/
-./cheerpj/
-./public/
-./test/
+mars/
+cheerpj/
+public/
+test/
+**/*.class
+index.list

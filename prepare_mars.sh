@@ -6,9 +6,9 @@ if [ ! -d mars ]; then
 
     # extract into mars/
     unzip Mars_original.jar -d mars
-
-    # update mars with overwrites
-    cp -r mars_update/* mars/
 else
     echo "mars/ already exists"
 fi
+
+# update mars with overwrites
+cp -r mars_update/* mars/

@@ -25,13 +25,30 @@
 <body>
 </body>
 <script>
-  const homepage = "mars-mips/";
+  let homepage = "mars-mips/";
+  // compute homepage from url
+  let url = window.location.href;
+  let index = url.lastIndexOf("/");
+  if (index > 0) {
+    homepage = url.substring(index + 1);
+    if (homepage.length > 0 && homepage[homepage.length - 1] != "/") {
+      homepage += "/";
+    }
+  }
+
   cheerpjInit({ clipboardMode: "system" });
   cheerpjCreateDisplay(800, 600);
   const display = document.getElementById("cheerpjDisplay");
   display.style.width = "100%";
   display.style.height = "100%";
   cheerpjRunJar("/app/" + homepage + "Mars.jar");
+
+  cheerpjRunMain("util.Util", "/app/" + homepage + "Util.jar");
+  // cjCall("util.Util","hello");
+  // cjCall("util.Util","copyFile","/app/asm/hello.asm","/files/hello2.asm");
+
+  // we can use a /index.list file to expose files to /app/
+  // but this does not work with folders
 
   function read_file(url, callback, error_callback = () => { }) {
     const request = new XMLHttpRequest();
@@ -47,28 +64,92 @@
     request.send();
   }
 
+  function createDirectory(path) {
+    console.log("createDirectory", path)
+    file = cjNew("java.io.File", "/files/" + path);
+    cjCall(file, "mkdirs");
+  }
+
+  function writeFile(dst, content) {
+    dst_str = "/files/" + dst;
+    file_writer = cjNew("java.io.FileWriter", dst_str);
+    buffered_writer = cjNew("java.io.BufferedWriter", file_writer);
+    cjCall(buffered_writer, "write", content);
+    cjCall(buffered_writer, "close");
+  }
+
+  // does not work
+  function copyFile(src, dst) {
+    // src_file = cjNew("java.io.File", "/app/" + src);
+    // dst_file = cjNew("java.io.File", "/files/" + dst);
+    // src_str = cjStringJsToJava("/app/" + src);
+    // dst_str = cjStringJsToJava("/files/" + dst);
+    src_str = "/app/" + src;
+    dst_str = "/files/" + dst;
+    cjCall("util.Util", "copyFile", src_str, dst_str, true);
+    // src_file = cjNew("java.io.File", src_str);
+    // dst_file = cjNew("java.io.File", dst_str);
+    // // using apache commons
+    // //cjCall("org.apache.commons.io.FileUtils", "copyFile", src_file, dst_file);
+    // // using java.nio
+    // // src_path = cjCall(src_file, "toPath");
+    // // dst_path = cjCall(dst_file, "toPath");
+    // // cjCall("java.nio.file.Files", "copy", src_path, dst_path);
+    // // using steams
+    // input_stream = cjNew("java.io.FileInputStream", src_file);
+    // output_stream = cjNew("java.io.FileOutputStream", dst_file);
+    // input_channel = cjCall(input_stream, "getChannel");
+    // output_channel = cjCall(output_stream, "getChannel");
+    // size = cjCall(input_channel, "size");
+    // cjCall(output_channel, "transferFrom", input_channel, 0, size);
+  }
+
+  function processFileOperation(s) {
+    // mkdir FILE 
+    // copy FILE1 FILE2
+    // create FILE = copy FILE FILE
+    console.log("processFileOperation", s)
+    const parts = s.split(" ");
+    switch (parts[0]) {
+      case "mkdir":
+        createDirectory(parts[1]);
+        break;
+      case "copy":
+        copyFile(parts[1], parts[2]);
+        break;
+      case "create":
+        copyFile(parts[1], parts[1]);
+        break;
+    }
+
+    // read_file(file,
+    //   (content) => {
+    //     console.log("added file", file);
+    //     let file_path = file.replace("./", "");
+    //     cheerpjAddStringFile("/str/" + file_path, content);
+    //   },
+    //   () => {
+    //     console.log("error loading file", file);
+    //   }
+    // );
+  }
+
   setTimeout(() => {
-    read_file("./asm/list.txt",
+    read_file("files.list",
       (content) => {
         const files = content.split("\n");
         files.forEach((file) => {
-          if (file.length > 0) {
-            read_file("./asm/" + file,
-              (content) => {
-                console.log("added file", file);
-                cheerpjAddStringFile("/str/" + file, content);
-              },
-              () => {
-                console.log("error loading file", file);
-              }
-            );
+          if (file.length == 0) {
+            return;
           }
+          processFileOperation(file);
         });
       },
       () => {
         console.log("error loading list");
       });
   }, 1000);
+  // */
 
   // general info: https://docs.leaningtech.com/cheerpj/Runtime-API.html
   // file system: https://docs.leaningtech.com/cheerpj/File-System-support.html
@@ -76,8 +157,7 @@
   // /files/ is persistent indexedDB storage
 </script>
 
-You can find examples in /str/.
-Save your own files in /files/.
+Save your own files in /files/. You can also find examples there.
 
 <br />
 The first start takes a bit of time to load all resources.
