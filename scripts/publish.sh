@@ -5,9 +5,7 @@ if [ -d "public" ]; then
 fi
 git worktree add -B gh-pages public origin/gh-pages
 
-rm -rf ./public/*
-cp -r ./asm ./public/asm
-cp *.jar *.jar.js *.js *.html *.list ./public/
+./scripts/bundle.sh ./public
 
 cd public
 current_branch=$(git symbolic-ref --short -q HEAD)
