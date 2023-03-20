@@ -9,5 +9,5 @@ if [ -d "$OUT_FOLDER" ]; then
 fi
 mkdir -p $OUT_FOLDER
 
-cp -r ./asm ./$OUT_FOLDER/asm
-cp *.jar *.jar.js *.js *.html *.list ./$OUT_FOLDER/
+cp -r ./util ./asm ./$OUT_FOLDER/
+cp *.jar *.js *.html *.list ./$OUT_FOLDER/

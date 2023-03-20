@@ -36,9 +36,9 @@
   const display = document.getElementById("cheerpjDisplay");
   display.style.width = "100%";
   display.style.height = "100%";
-  cheerpjRunJar("/app" + homepage + "Mars.jar");
-
-  cheerpjRunMain("util.Util", "/app/" + homepage + "Util.jar");
+  // cheerpjRunJar("/app" + homepage + "Mars.jar");
+  //cheerpjRunMain("util.Util", "/app" + homepage + "Util.jar");
+  cheerpjRunMain("Mars", "/app" + homepage + "Mars.jar" + ":" + "/app" + homepage + "Util.jar");
 
   // we can use a /index.list file to expose files to /app/
   // but this does not work with folders
@@ -64,7 +64,7 @@
   }
 
   function copyFile(src, dst) {
-    src_str = "/app/" + src;
+    src_str = "/app" + homepage + src;
     dst_str = "/files/" + dst;
     cjCall("util.Util", "copyFile", src_str, dst_str, true);
   }
