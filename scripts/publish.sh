@@ -17,7 +17,7 @@ if [ "$current_branch" != "gh-pages" ]; then
 fi
 
 git add . && git commit -m "Publishing to gh-pages (publish.sh)"
-git push origin gh-pages
+git push --force origin gh-pages
 
 cd ..
 git worktree remove public
