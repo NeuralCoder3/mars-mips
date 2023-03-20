@@ -25,23 +25,18 @@
 <body>
 </body>
 <script>
-  let homepage = "mars-mips/";
   // compute homepage from url
   let url = window.location.href;
-  let index = url.lastIndexOf("/");
-  if (index > 0) {
-    homepage = url.substring(index + 1);
-    if (homepage.length > 0 && homepage[homepage.length - 1] != "/") {
-      homepage += "/";
-    }
-  }
+  const homepage = new URL(url).pathname;
+  console.log("url", url);
+  console.log("homepage", homepage);
 
   cheerpjInit({ clipboardMode: "system" });
   cheerpjCreateDisplay(800, 600);
   const display = document.getElementById("cheerpjDisplay");
   display.style.width = "100%";
   display.style.height = "100%";
-  cheerpjRunJar("/app/" + homepage + "Mars.jar");
+  cheerpjRunJar("/app" + homepage + "Mars.jar");
 
   cheerpjRunMain("util.Util", "/app/" + homepage + "Util.jar");
 
