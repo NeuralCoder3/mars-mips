@@ -93,6 +93,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		public static final String[] ASCII_TABLE = getAsciiStrings();
       /** MARS exit code -- useful with SYSCALL 17 when running from command line (not GUI) */
       public static int exitCode = 0;
+      public static String init_file = null;
    	
       public static boolean runSpeedPanelExists = false;
    	

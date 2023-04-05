@@ -226,6 +226,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
          this.pack();
          this.setVisible(true);
+
+         if(Globals.init_file!=null) {
+            File f = new File(Globals.init_file);
+            String path = f.getAbsolutePath();
+            f = new File(path);
+            if (!f.exists()) {
+               System.out.println("File not found: "+path);
+            }else {
+               System.out.println("Opening file: "+f.getAbsolutePath());
+               System.out.println("Parent: "+f.getParent());
+               editor.setCurrentOpenDirectory(f.getParent());
+               this.editor.openFile(f);
+            }
+         }
       }
    	
    	

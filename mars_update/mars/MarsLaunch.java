@@ -109,7 +109,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private boolean countInstructions; // Whether to count and report number of instructions executed 
       private boolean selfModifyingCode; // Whether to allow self-modifying code (e.g. write to text segment)
       private static final String rangeSeparator = "-";
-      private static final int splashDuration = 2000; // time in MS to show splash screen
+      private static final int splashDuration = 0; // time in MS to show splash screen
       private static final int memoryWordsPerLine = 4; // display 4 memory words, tab separated, per line
       private static final int DECIMAL = 0; // memory and register display format
       private static final int HEXADECIMAL = 1;// memory and register display format
@@ -127,8 +127,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private int simulateErrorExitCode;// MARS command exit code to return if simulation error occurs
    		
       public MarsLaunch(String[] args) {
-         boolean gui = (args.length == 0);
+         boolean gui = (args.length == 0) || (args[0].equals("-g"));
          Globals.initialize(gui);  
+         if(args.length > 0 && args[0].equals("-g")) {
+            Globals.init_file = args[1];
+         }
          if (gui) {
             launchIDE();  
          } 
@@ -237,7 +240,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
       private void launchIDE() {
          // System.setProperty("apple.laf.useScreenMenuBar", "true"); // Puts MARS menu on Mac OS menu bar
-         new MarsSplashScreen(splashDuration).showSplash();
+         if (splashDuration > 0)
+            new MarsSplashScreen(splashDuration).showSplash();
          SwingUtilities.invokeLater(
                new Runnable() {
                   public void run() {

@@ -236,6 +236,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public boolean open() {
          return editTabbedPane.openFile();
       }
+
+       public boolean openFile(File file) {
+         return editTabbedPane.openFile(file);
+      }
    
    
    
