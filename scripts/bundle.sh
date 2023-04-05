@@ -5,7 +5,7 @@ fi
 
 if [ -d "$OUT_FOLDER" ]; then
   echo "Output folder $OUT_FOLDER already exists"
-  rm -rf $OUT_FOLDER
+  rm -rf $OUT_FOLDER/*
 fi
 mkdir -p $OUT_FOLDER
 
