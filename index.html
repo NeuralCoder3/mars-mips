@@ -31,14 +31,67 @@
   console.log("url", url);
   console.log("homepage", homepage);
 
+  let code = undefined;
+  let urlParams = null;
+  if (window.location.search) {
+    console.log("search:", window.location.search);
+    urlParams = new URLSearchParams(window.location.search);
+  }
+  if (window.location.hash) {
+    urlParams = new URLSearchParams("?" + window.location.hash.substring(1));
+  }
+
+  if (urlParams) {
+    if (urlParams.get('code')) {
+      code = urlParams.get('code');
+    }
+  }
+
+
   cheerpjInit({ clipboardMode: "system" });
   cheerpjCreateDisplay(800, 600);
   const display = document.getElementById("cheerpjDisplay");
   display.style.width = "100%";
   display.style.height = "100%";
-  // cheerpjRunJar("/app" + homepage + "Mars.jar");
-  //cheerpjRunMain("util.Util", "/app" + homepage + "Util.jar");
-  cheerpjRunMain("Mars", "/app" + homepage + "Mars.jar" + ":" + "/app" + homepage + "Util.jar");
+  const jar_call = "/app" + homepage + "Mars.jar" + ":" + "/app" + homepage + "Util.jar";
+
+  function checkFileSystem(path) {
+    for (var i = 0; i < cheerpjFSMounts.length; i++) {
+      var mount = cheerpjFSMounts[i];
+      if (path.startsWith(mount.mountPoint)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (code) {
+    console.log("load init code", code);
+    const file_path = "/str/" + "code.mips";
+
+    const repeat_time = 500;
+    function try_add() {
+      try {
+        // check needed to avoid debuggers
+        if (checkFileSystem(file_path)) {
+          cheerpjAddStringFile(file_path, code);
+        } else {
+          setTimeout(try_add, repeat_time);
+        }
+      } catch (e) {
+        console.log("error creating init file", e);
+        setTimeout(try_add, repeat_time);
+      }
+    }
+    try_add();
+
+    //cheerpjAddStringFile(file_path, code);
+    console.log("saved code to", file_path);
+    // cheerpjAddStringFile("/str/" + "code.mips", "li $v0, 1\nli $a0, 1\nsyscall\nli $v0, 10\nsyscall\n");
+    cheerpjRunMain("Mars", jar_call, "-g", file_path);
+  } else {
+    cheerpjRunMain("Mars", jar_call);
+  }
 
   // we can use a /index.list file to expose files to /app/
   // but this does not work with folders
