@@ -27,7 +27,11 @@
 <script>
   // compute homepage from url
   let url = window.location.href;
-  const homepage = new URL(url).pathname;
+  // const homepage = new URL(url).pathname;
+  // const homepage = url.substring(0, url.lastIndexOf("/") + 1);
+  // folder relative to toplevel
+  const homepage = url.substring(url.indexOf("/", 8), url.lastIndexOf("/") + 1);
+
   console.log("url", url);
   console.log("homepage", homepage);
 
